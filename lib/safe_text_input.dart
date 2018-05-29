@@ -64,9 +64,6 @@ class SafeTextInputConnection {
   /// other client attaches to it within this animation frame.
   void close(BuildContext context) {
     if (attached) {
-      if (isShowSafeKeyboard) {
-        Navigator.pop(context);
-      }
       isShowSafeKeyboard = false;
 
 //      SystemChannels.textInput.invokeMethod('TextInput.clearClient');

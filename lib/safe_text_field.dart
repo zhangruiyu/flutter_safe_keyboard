@@ -348,15 +348,16 @@ class _TextFieldState extends State<SafeTextField>
   @override
   void initState() {
     super.initState();
-    if (widget.controller == null) _controller = new safeText.TextEditingController();
+    if (widget.controller == null)
+      _controller = new safeText.TextEditingController();
   }
 
   @override
   void didUpdateWidget(SafeTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller == null && oldWidget.controller != null)
-      _controller =
-          new safeText.TextEditingController.fromValue(oldWidget.controller.value);
+      _controller = new safeText.TextEditingController.fromValue(
+          oldWidget.controller.value);
     else if (widget.controller != null && oldWidget.controller == null)
       _controller = null;
   }
@@ -533,7 +534,8 @@ class _TextFieldState extends State<SafeTextField>
           onTapDown: _handleTapDown,
           onTap: _handleTap,
           onTapCancel: _handleTapCancel,
-          onLongPress: _handleLongPress,
+//禁用长按
+//          onLongPress: _handleLongPress,
           excludeFromSemantics: true,
           child: child,
         ),

@@ -7,9 +7,12 @@ class SafeKeyboard extends StatefulWidget {
   final Function closeInputConnectionIfNeeded;
   final int _id;
 
-  SafeKeyboard(this.clientHandler, this.closeInputConnectionIfNeeded,
-      GlobalKey<SafeKeyboardState> keyboardStateKey,this._id,)
-      : super(key: keyboardStateKey);
+  SafeKeyboard(
+    this.clientHandler,
+    this.closeInputConnectionIfNeeded,
+    GlobalKey<SafeKeyboardState> keyboardStateKey,
+    this._id,
+  ) : super(key: keyboardStateKey);
 
   @override
   SafeKeyboardState createState() => new SafeKeyboardState();
@@ -55,6 +58,11 @@ class SafeKeyboardState extends State<SafeKeyboard> {
           updateText(value);
         },
         child: new Container(
+            decoration: new BoxDecoration(
+                border: new Border.all(
+              color: Colors.grey,
+              width: 0.2,
+            )),
             alignment: Alignment.center,
             width: gridWidth / 3,
             height: gridHeight,
@@ -93,12 +101,16 @@ class SafeKeyboardState extends State<SafeKeyboard> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 new Container(
+                  decoration: new BoxDecoration(
+                      border: new Border.all(
+                    color: Colors.grey,
+                    width: 0.2,
+                  )),
                   width: actionButtonWidth,
                   height: gridTotalHeight / 2,
                   child: new FlatButton(
                       child: new Icon(Icons.delete),
                       onPressed: () {
-//                        Navigator.pop(context);
                         deleteText();
                       }),
                 ),
@@ -113,6 +125,7 @@ class SafeKeyboardState extends State<SafeKeyboard> {
                         style: new TextStyle(fontSize: 20.0),
                       ),
                       onPressed: () {
+                        Navigator.pop(context);
                         widget.clientHandler.handleTextInputInvocation(
                             new MethodCall('TextInputClient.performAction',
                                 [widget._id, 'TextInputAction.done']));
@@ -127,6 +140,10 @@ class SafeKeyboardState extends State<SafeKeyboard> {
   }
 
   updateText(String text) {
+    if (text == '^') {
+      Navigator.pop(context);
+      return;
+    }
     if (resultValue.selection.baseOffset == -1 ||
         resultValue.selection.baseOffset == resultValue.text.length) {
       String resultText = resultValue.text + text;
@@ -151,7 +168,8 @@ class SafeKeyboardState extends State<SafeKeyboard> {
           ));
     }
     widget.clientHandler.handleTextInputInvocation(new MethodCall(
-        'TextInputClient.updateEditingState', [widget._id, resultValue.toJSON()]));
+        'TextInputClient.updateEditingState',
+        [widget._id, resultValue.toJSON()]));
   }
 
   deleteText() {
@@ -181,7 +199,8 @@ class SafeKeyboardState extends State<SafeKeyboard> {
           ));
     }
     widget.clientHandler.handleTextInputInvocation(new MethodCall(
-        'TextInputClient.updateEditingState', [widget._id, resultValue.toJSON()]));
+        'TextInputClient.updateEditingState',
+        [widget._id, resultValue.toJSON()]));
   }
 
   void setEditingState(TextEditingValue value) {
