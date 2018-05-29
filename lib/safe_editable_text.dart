@@ -442,7 +442,7 @@ class SafeEditableTextState extends State<SafeEditableText> with AutomaticKeepAl
           )
       )..setEditingState(localValue);
     }
-    _textInputConnection.show(context);
+    _textInputConnection.show(context,_closeInputConnectionIfNeeded);
   }
 
   void _closeInputConnectionIfNeeded() {

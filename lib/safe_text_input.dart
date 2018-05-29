@@ -14,6 +14,11 @@ import 'package:keyboard/keyboard.dart';
 /// See also:
 ///
 ///  * [SafeTextInput.attach]
+final GlobalKey<SafeKeyboardState> keyboardStateKey =
+    new GlobalKey<SafeKeyboardState>();
+//是否显示安全键盘
+bool isShowSafeKeyboard = false;
+
 class SafeTextInputConnection {
   SafeTextInputConnection._(this._client)
       : assert(_client != null),
@@ -28,21 +33,29 @@ class SafeTextInputConnection {
   bool get attached => _clientHandler._currentConnection == this;
 
   /// Requests that the text input control become visible.
-  void show(BuildContext context) {
+  void show(BuildContext context, Function closeInputConnectionIfNeeded) {
     assert(attached);
-   showBottomSheet(context: context, builder: (context){
-      return new SafeKeyboard(_clientHandler);
-    });
+    if (!isShowSafeKeyboard) {
+      isShowSafeKeyboard = true;
+      showBottomSheet(
+          context: context,
+          builder: (context) {
+            return new SafeKeyboard(_clientHandler,
+                closeInputConnectionIfNeeded, keyboardStateKey, _id);
+          });
+    }
+
 //    SystemChannels.textInput.invokeMethod('TextInput.show');
   }
 
   /// Requests that the text input control change its internal state to match the given state.
   void setEditingState(TextEditingValue value) {
     assert(attached);
-    SystemChannels.textInput.invokeMethod(
+    keyboardStateKey.currentState?.setEditingState(value);
+    /* SystemChannels.textInput.invokeMethod(
       'TextInput.setEditingState',
       value.toJSON(),
-    );
+    );*/
   }
 
   /// Stop interacting with the text input control.
@@ -51,7 +64,11 @@ class SafeTextInputConnection {
   /// other client attaches to it within this animation frame.
   void close(BuildContext context) {
     if (attached) {
-      Navigator.pop(context);
+      if (isShowSafeKeyboard) {
+        Navigator.pop(context);
+      }
+      isShowSafeKeyboard = false;
+
 //      SystemChannels.textInput.invokeMethod('TextInput.clearClient');
       _clientHandler
         .._currentConnection = null
@@ -84,7 +101,7 @@ class TextInputClientHandler {
     final List<dynamic> args = methodCall.arguments;
     final int client = args[0];
     // The incoming message was for a different client.
-//    if (client != _currentConnection._id) return;
+    if (client != _currentConnection._id) return;
     switch (method) {
       case 'TextInputClient.updateEditingState':
         _currentConnection._client
